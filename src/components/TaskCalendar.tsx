@@ -2,13 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { View, TextInput, StyleSheet, Modal, TouchableOpacity, Text } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {FlatList} from 'react-native';
 
 const TaskCalendar = () => {
-  const [selectedDate, setSelectedDate] = useState('');
-  const [tasks, setTasks] = useState({});
-  const [showInput, setShowInput] = useState(false);
-  const [currentTask, setCurrentTask] = useState('');
-  const [markedDates, setMarkedDates] = useState({});
+  const [selectedDate, setSelectedDate] = useState<string>('');
+  const [tasks, setTasks] = useState<{ [date: string]: string }>({});
+  const [showInput, setShowInput] = useState<boolean>(false);
+  const [currentTask, setCurrentTask] = useState<string>('');
+  const [markedDates, setMarkedDates] = useState<{ [date: string]: { marked: boolean; dotColor: string } }>({});
+  const [age, setAge] = useState<string>('');
+  const [gender, setGender] = useState<'male' | 'female' | ''>('');
+  const [points, setPoints] = useState<string[]>([]);
+  console.log('tasks', tasks)
 
   useEffect(() => {
     loadTasks();
@@ -27,15 +32,15 @@ const TaskCalendar = () => {
     }
   };
 
-  const updateMarkedDates = (taskData) => {
-    const marked = {};
+  const updateMarkedDates = (taskData: any) => {
+    const marked: { [key: string]: { marked: boolean; dotColor: string } } = {};
     Object.keys(taskData).forEach(date => {
       marked[date] = { marked: true, dotColor: '#50cebb' };
     });
     setMarkedDates(marked);
   };
 
-  const handleDayPress = (day) => {
+  const handleDayPress = (day: { dateString: string }) => {
     setSelectedDate(day.dateString);
     if (tasks[day.dateString]) {
       setCurrentTask(tasks[day.dateString]);
@@ -43,6 +48,20 @@ const TaskCalendar = () => {
       setCurrentTask('');
     }
     setShowInput(true);
+  };
+
+  const handleGenerate = () => {
+    // Example logic: you can replace this with your own
+    const generatedPoints: string[] = [];
+    if (!age || !gender) return;
+    if (gender === 'male') {
+      generatedPoints.push('Check blood pressure');
+      if (parseInt(age) > 40) generatedPoints.push('Prostate exam');
+    } else if (gender === 'female') {
+      generatedPoints.push('Mammogram');
+      if (parseInt(age) > 21) generatedPoints.push('Pap smear');
+    }
+    setPoints(generatedPoints);
   };
 
   const saveTask = async () => {
@@ -67,7 +86,47 @@ const TaskCalendar = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Task Calendar</Text>
+      <Text style={styles.header}>CheckUP Planner</Text>
+      <View style={styles.row}>
+        <TextInput
+          style={[styles.input, { flex: 1, minHeight: 40, marginRight: 8 }]}
+          placeholder="Enter age"
+          keyboardType="numeric"
+          value={age}
+          onChangeText={setAge}
+        />
+        <TouchableOpacity
+          style={[
+            styles.genderButton,
+            gender === 'male' && styles.genderButtonSelected,
+          ]}
+          onPress={() => setGender('male')}
+        >
+          <Text style={styles.genderButtonText}>Male</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.genderButton,
+            gender === 'female' && styles.genderButtonSelected,
+          ]}
+          onPress={() => setGender('female')}
+        >
+          <Text style={styles.genderButtonText}>Female</Text>
+        </TouchableOpacity>
+      </View>
+      <TouchableOpacity style={styles.generateButton} onPress={handleGenerate}>
+        <Text style={styles.buttonText}>Go</Text>
+      </TouchableOpacity>
+      {points.length > 0 && (
+        <View style={{ marginVertical: 10 }}>
+          <Text style={{ fontWeight: 'bold', marginBottom: 5 }}>Points to be done:</Text>
+          <FlatList
+            data={points}
+            keyExtractor={(item, idx) => idx.toString()}
+            renderItem={({ item }) => <Text>- {item}</Text>}
+          />
+        </View>
+      )}
       <Calendar
         onDayPress={handleDayPress}
         markedDates={markedDates}
@@ -200,6 +259,35 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginBottom: 8,
+  },
+  genderButton: {
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#50cebb',
+    marginLeft: 4,
+    backgroundColor: '#fff',
+  },
+  genderButtonSelected: {
+    backgroundColor: '#50cebb',
+  },
+  genderButtonText: {
+    color: '#2d4150',
+    fontWeight: 'bold',
+  },
+  generateButton: {
+    backgroundColor: '#50cebb',
+    padding: 12,
+    borderRadius: 8,
+    marginHorizontal: 16,
+    marginBottom: 10,
+    alignItems: 'center',
   },
 });
 
