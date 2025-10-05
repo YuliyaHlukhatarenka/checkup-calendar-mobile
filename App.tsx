@@ -6,7 +6,7 @@
 
 import React from 'react';
 import {SafeAreaView, StatusBar, StyleSheet} from 'react-native';
-import TaskCalendar from './src/components/TaskCalendar';
+import TaskCalendar from './src/components/home-page/home-page';
 
 function App(): React.JSX.Element {
   return (
