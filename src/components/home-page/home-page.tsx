@@ -6,6 +6,7 @@ import {FlatList} from 'react-native';
 import {styles} from './home-page.styles';
 import {Questionary} from '../questionary/questionary';
 import {CheckupList} from '../checkup-list/checkup-list';
+import { AIkey } from '../../../config';
 
 const TaskCalendar = () => {
   const [selectedDate, setSelectedDate] = useState<string>('');
@@ -54,30 +55,6 @@ const TaskCalendar = () => {
     setShowInput(true);
   };
 
-  // Replace this with your real AI API call
-  // const generateCheckupListAI = async (
-  //   age: string,
-  //   gender: string,
-  //   condition: string,
-  // ): Promise<string[]> => {
-  //   // Example: Replace with fetch to your AI endpoint
-  //   // Here is a mock implementation:
-  //   if (
-  //     gender === 'male' &&
-  //     parseInt(age) > 40 &&
-  //     condition.toLowerCase().includes('гипотиреоз')
-  //   ) {
-  //     return [
-  //       'Check blood pressure',
-  //       'Prostate exam',
-  //       'Thyroid function tests',
-  //       'Endocrinologist consultation',
-  //     ];
-  //   }
-  //   // Add more logic or call your AI API here
-  //   return ['General checkup'];
-  // };
-
   const generateCheckupListAI = async (
     age: string,
     gender: string,
@@ -86,7 +63,7 @@ const TaskCalendar = () => {
     const prompt = `Suggest a list of medical checkups for a ${age}-year-old ${gender} with the following condition(s): ${condition}. Return the list as bullet points.`;
 
     const info = await fetch(
-      'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro?key=AIzaSyA_N5nEsVv7bLHX5P_Z0TXJ2XzeqzdXUEg',
+      `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro?key=${AIkey}`,
       {method: 'GET'},
     );
 
@@ -94,7 +71,7 @@ const TaskCalendar = () => {
     console.log('AI methods:', dataInfo);
 
     const response = await fetch(
-      'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent?key=AIzaSyA_N5nEsVv7bLHX5P_Z0TXJ2XzeqzdXUEg',
+      `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent?key=${AIkey}`,
       {
         method: 'POST',
         headers: {
